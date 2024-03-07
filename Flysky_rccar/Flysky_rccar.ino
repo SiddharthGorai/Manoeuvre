@@ -37,15 +37,14 @@ void setup() {
 
 void loop() {
 
-  digitalWrite(IN1,HIGH);
-  digitalWrite(IN2,LOW);
+
   ch1 = IBus.readChannel(0);
   ch2 = IBus.readChannel(1);
   ch3 = IBus.readChannel(2);
   ch4 = IBus.readChannel(3);
   ch5 = IBus.readChannel(4);
   ch6 = IBus.readChannel(5);
-
+ 
   // Serial.print("Ch1: ");
   // Serial.print(ch1);
   // Serial.print(" ");
@@ -56,13 +55,22 @@ void loop() {
 
 
   // mapping
-
+  // Serial.print(ch1);
+  // Serial.print(" ");
+  // Serial.println(ch3);
+  //   Serial.print(" ");
+  // Serial.println(vel_rotR);
+  // delay(500);
   vel_thr = map(ch3, 1035, 1990, 0, 255);
 
+  if (ch1 > 1000 || ch3 > 1000) {
+    if (ch1 > 1465 && ch1 < 1510) {
+      vel_rotL = 0;
+      vel_rotR = 0;
+    } else if (ch1 < 1465) vel_rotL = map(ch1, 1020, 1465, 255, 0);
+    else if (ch1 > 1510) vel_rotR = map(ch1, 1510, 1920, 0, 255);
+  }
 
-  if (ch1 > 1465 && ch1 < 1510){ vel_rotL = 0; vel_rotR = 0;}
-  else if (ch1 < 1465) vel_rotL = map(ch1, 1020, 1465, 255, 0);
-  else if (ch1 > 1510) vel_rotR = map(ch1, 1510, 1920, 0, 255);
 
   if (vel_thr < 0) vel_thr = 0;
   else if (vel_thr > 255) vel_thr = 255;
@@ -71,23 +79,29 @@ void loop() {
   else if (vel_rotL > 255) vel_rotL = 255;
   if (vel_rotR < 0) vel_rotR = 0;
   else if (vel_rotR > 255) vel_rotR = 255;
-  
 
-  if(vel_thr > 10){
+
+  if (vel_thr > 10) {
     forward(vel_thr);
   } else stop();
-  if(vel_rotL > 10){
+  if (vel_rotL > 10) {
     left(vel_rotL);
-  }
-  else if(vel_rotR > 10){
+  } else if (vel_rotR > 10) {
     right(vel_rotR);
+  }
+
+  if(ch6 == 2000){
+    // reverse(0);
+      if (vel_thr > 10) {
+    reverse(vel_thr);
+  }
+   
   }
   Serial.print(vel_thr);
   Serial.print(" ");
   Serial.print(vel_rotL);
     Serial.print(" ");
   Serial.println(vel_rotR);
- 
 }
 
 void forward(int vel_thr) {
@@ -97,7 +111,7 @@ void forward(int vel_thr) {
   analogWrite(IN4, vel_thr);
   // Serial.println("frrward");
 }
-void reverse() {
+void reverse(int vel_thr) {
   analogWrite(IN1, vel_thr);
   analogWrite(IN2, speedL);
   analogWrite(IN3, vel_thr);
